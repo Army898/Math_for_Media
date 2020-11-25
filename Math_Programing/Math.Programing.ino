@@ -1,3 +1,4 @@
+#include <Keypad.h>
 #include <Adafruit_GFX.h>
 #include <Adafruit_SSD1306.h>
 #include <SPI.h>
@@ -5,22 +6,140 @@
 
 Adafruit_SSD1306 oled = Adafruit_SSD1306(128, 32, &Wire);    //ประกาศสร้าง oject ที่ใช้ลองรับชื่อของอุปกรณ์
 
-String var1[] = {"A","B","C","D","E","F","G","H","I","J","K","L","M","N","O","P","Q","R","S","T","U","V","W","X","Y","Z"};   //ประกาศอาเรย์ตัวหนังสืออยู่ตรงนี้
+long first = 0;  
+long second = 0;
+double total = 0;
+int time = 0 , Done = 0 , show = 0 ,Key = 0 , Encryption = 0 , Decryption = 0 ,numberic = 0;
+String result ,resultEncryption , resultDecryption; 
 
-void setup() 
+
+char customKey;
+const byte ROWS = 4;
+const byte COLS = 4;
+
+char keys[ROWS][COLS] = {
+  {'1','2','3','A'},
+  {'4','5','6','B'},
+  {'7','8','9','C'},
+  {'*','0','#','D'}
+};
+byte rowPins[ROWS] = {2,3,4,5};
+byte colPins[COLS] = {6,7,8,9};
+
+Keypad customKeypad = Keypad( makeKeymap(keys), rowPins, colPins, ROWS, COLS); 
+
+String alphabet[] = {"A","B","C","D","E","F","G","H","I","J","K","L","M","N","O","P","Q","R","S","T","U","V","W","X","Y","Z"}; 
+void setup()
 {
-  pinMode(2, INPUT_PULLUP); 
-  oled.begin(0x3C); // Address 0x3C for 128x32
-  Serial.begin(9600);
+    oled.begin(0x3C);    
+    Serial.begin(9600);
 }
-int i = 0;
-void loop() 
+
+void loop()
 {
-  oled.clearDisplay();      //ล้างหน้าจอแสดงผล
-  oled.setCursor(0, 0);        //กำหนดตำตำแหน่ง curcor (แกน x, แกน y)
-  oled.setTextColor(SSD1306_WHITE);         //กำหนดสีของตัวหนังสือ  (มีแค่สีขาว)
-  oled.setTextSize(1);                          //กำหนดขนาดของตัวหนังสือ(มีตั้งแต่1-3)
-  oled.println("Guu kuy yai mark");        //แสดงคำบนหน้าจอ
-  oled.display();           //แสดงการทำงานทั้งหมด
-  delay(10);            //หน่วงเวลา
+  customKey = customKeypad.getKey();
+    switch (customKey) 
+    {
+        case '0' ... '9':
+        first = first * 10  + (customKey - '0');
+        oled.clearDisplay();      //ล้างหน้าจอแสดงผล
+        oled.setCursor(0, 0);        //กำหนดตำตำแหน่ง curcor (แกน x, แกน y)
+        oled.setTextColor(SSD1306_WHITE);         //กำหนดสีของตัวหนังสือ  (มีแค่สีขาว)
+        oled.setTextSize(1);
+        oled.println(first);
+        oled.display();
+        break;
+        
+        case 'A':
+        Key = first;
+        oled.clearDisplay();      //ล้างหน้าจอแสดงผล
+        oled.setCursor(0, 0);        //กำหนดตำตำแหน่ง curcor (แกน x, แกน y)
+        oled.setTextColor(SSD1306_WHITE);         //กำหนดสีของตัวหนังสือ  (มีแค่สีขาว)
+        oled.setTextSize(1);
+        oled.println("Key = " + String(Key));
+        oled.display();
+        first = 0;
+        break;
+
+
+        case 'B' :
+
+        if (first >= 26)
+            {
+                oled.clearDisplay();      //ล้างหน้าจอแสดงผล
+                oled.setCursor(0, 0);        //กำหนดตำตำแหน่ง curcor (แกน x, แกน y)
+                oled.setTextColor(SSD1306_WHITE);         //กำหนดสีของตัวหนังสือ  (มีแค่สีขาว)
+                oled.setTextSize(1);
+                oled.println("Error");
+
+                oled.println("last_result = " + String(result));
+                oled.display();
+                first = 0;
+                break;
+            }
+
+        show = first;
+        oled.clearDisplay();      //ล้างหน้าจอแสดงผล
+        oled.setCursor(0, 0);        //กำหนดตำตำแหน่ง curcor (แกน x, แกน y)
+        oled.setTextColor(SSD1306_WHITE);         //กำหนดสีของตัวหนังสือ  (มีแค่สีขาว)
+        oled.setTextSize(1);
+        oled.println(alphabet[show]);
+        oled.display();
+        
+        result = result + alphabet[show];
+        oled.clearDisplay();      //ล้างหน้าจอแสดงผล
+        oled.setCursor(0, 10);        //กำหนดตำตำแหน่ง curcor (แกน x, แกน y)
+        oled.setTextColor(SSD1306_WHITE);         //กำหนดสีของตัวหนังสือ  (มีแค่สีขาว)
+        oled.setTextSize(1);
+        oled.println("last_result = " + String(result));
+        oled.display(); 
+
+        Encryption = ( first + Key ) % 26;
+        resultEncryption = resultEncryption + alphabet[Encryption];
+
+        Decryption = ( first - Key ) % 26;
+        resultDecryption = resultDecryption + alphabet[Decryption];
+
+        first = 0;
+        break;
+
+
+        case 'C':
+        oled.clearDisplay();      //ล้างหน้าจอแสดงผล
+        oled.setCursor(0, 0);        //กำหนดตำตำแหน่ง curcor (แกน x, แกน y)
+        oled.setTextColor(SSD1306_WHITE);         //กำหนดสีของตัวหนังสือ  (มีแค่สีขาว)
+        oled.setTextSize(1);
+        oled.println("result_Encryption = " +String(resultEncryption));
+        oled.display();
+        break;
+
+        case 'D':
+        oled.clearDisplay();      //ล้างหน้าจอแสดงผล
+        oled.setCursor(0, 0);        //กำหนดตำตำแหน่ง curcor (แกน x, แกน y)
+        oled.setTextColor(SSD1306_WHITE);         //กำหนดสีของตัวหนังสือ  (มีแค่สีขาว)
+        oled.setTextSize(1);
+        oled.println("result_Decryption = " +String(resultDecryption));
+        oled.display();
+        break;
+
+        case '*':
+        result = result + " ";
+        resultEncryption = resultEncryption + " ";
+        resultDecryption = resultDecryption + " ";
+        oled.clearDisplay();      //ล้างหน้าจอแสดงผล
+        oled.setCursor(0, 0);        //กำหนดตำตำแหน่ง curcor (แกน x, แกน y)
+        oled.setTextColor(SSD1306_WHITE);         //กำหนดสีของตัวหนังสือ  (มีแค่สีขาว)
+        oled.setTextSize(1);
+        oled.println("last_result = " + String(result));
+        oled.display();
+        break;
+
+      
+
+    }
+
+    
+
+    
 }
+
