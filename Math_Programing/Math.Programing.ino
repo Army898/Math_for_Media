@@ -33,6 +33,14 @@ void setup()
 {
     oled.begin(0x3C);    
     Serial.begin(9600);
+
+    oled.clearDisplay();      //ล้างหน้าจอแสดงผล
+    oled.setCursor(0, 16);        //กำหนดตำตำแหน่ง curcor (แกน x, แกน y)
+    oled.setTextColor(SSD1306_WHITE);         //กำหนดสีของตัวหนังสือ  (มีแค่สีขาว)
+    oled.setTextSize(1);
+    oled.println("Caesar Cipher Decoder");
+    oled.display();
+    delay(10);
 }
 
 void loop()
